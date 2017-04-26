@@ -27,8 +27,8 @@
 //-------------------------------------------------------------------
 /** An enumeration of directions in which the scroll view may display pages. */
 typedef enum {
-    TOPagerViewDirectionWestern=0, /** Pages scroll from the left, to the right */
-    TOPagerViewDirectionEastern=1  /** Pages scroll from the right, to the left */
+    TOPagerViewDirectionLeftToRight = 0, /** Pages ascend from the left, to the right */
+    TOPagerViewDirectionRightToLeft  = 1 /** Pages ascend from the right, to the left */
 } TOPagerViewDirection;
 
 //-------------------------------------------------------------------
@@ -37,6 +37,12 @@ typedef enum {
 @protocol TOPagerViewPageProtocol <NSObject>
 
 @optional
+
+/**
+ A unique string value that can be used to differentiate 
+ separate view subclasses managed and displayed by the pager view.
+ */
++ (NSString *)pageIdentifier;
 
 /**
  Called just before the page object is 
@@ -80,7 +86,7 @@ typedef enum {
 //-------------------------------------------------------------------
 
 @interface TOPagerView : UIView
-
+    
 /** Direct access to the scroll view object inside this view (read-only). */
 @property (nonatomic, strong, readonly) UIScrollView *scrollView;
 
@@ -94,7 +100,7 @@ typedef enum {
 @property (nonatomic, assign) NSInteger numberOfPages;
 
 /** Width of the spacing between pages in points (default value of 40). */
-@property (nonatomic, assign) NSInteger pageSpacing;
+@property (nonatomic, assign) CGFloat pageSpacing;
 
 /** The direction of the layout order of pages. */
 @property (nonatomic, assign) TOPagerViewDirection pageScrollDirection;

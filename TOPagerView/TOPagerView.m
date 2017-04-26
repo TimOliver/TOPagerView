@@ -23,20 +23,14 @@
 #import "TOPagerView.h"
 #import <QuartzCore/QuartzCore.h>
 
-//Default Layout Properties
-#define PAGEVIEW_DEFAULT_SPACING 20
-
 //Convienience Definitions
-#define PAGEVIEW_SCROLLVIEW_WIDTH           self.scrollView.bounds.size.width
 
 #define PAGEVIEW_HALF_SPACING               floor(self.pageSpacing * 0.5f)
 #define PAGEVIEW_HALF_SCROLLVIEW            floor(self.scrollView.bounds.size.width * 0.5f)
-#define PAGEVIEW_EASTERN_MODE               (self.pageScrollDirection == TOPagerViewDirectionEastern)
 
 #define PAGEVIEW_HEADER_VIEW                (self.headerFooterView ? self.headerFooterView : (self.headerView ? self.headerView : nil))
 #define PAGEVIEW_FOOTER_VIEW                (self.headerFooterView ? self.headerFooterView : (self.footerView ? self.footerView : nil))
 
-#define PAGEVIEW_NUMBEROFSLOTS              (self.numberOfPages + (PAGEVIEW_HEADER_VIEW ? 1 : 0) + (PAGEVIEW_FOOTER_VIEW ? 1 : 0))
 #define PAGEVIEW_PUBLIC_INDEX(index)        (self.headerView || self.headerFooterView) ? index - 1 : index
 
 
@@ -56,7 +50,7 @@
     } _pageScrollViewFlags;
 }
 
-/* A flag to temporarily disable laying out pages */
+/* A flag to temporarily disable laying out pages during animations */
 @property (nonatomic, assign) BOOL disablePageLayout;
 
 /* Class prototype used to generate pages */
@@ -71,32 +65,8 @@
 /* Pages that have been requeued into the pool, waiting for re-use */
 @property (nonatomic, strong) NSMutableSet *recycledPages;
 
-/* Perform all of the necessary initiliaztion steps. */
-- (void)setup;
-
-/* Perform all necessary clean-up steps. */
-- (void)cleanup;
-
-/* Return the appropriate frame for the main scroll view */
-- (CGRect)frameForScrollView;
-
-/* Return the frame for a page inside the main scroll view */
-- (CGRect)frameForViewAtIndex:(NSInteger)index;
-
-/* Return the content offset of a segment in the scroll view */
-- (CGPoint)contentOffsetForScrollViewAtIndex:(NSInteger)index;
-
-/* Return the content size of the main scroll view */
-- (CGSize)contentSizeForScrollView;
-
-/* Works out which pages need to be recycled, and lays out any new ones */
-- (void)layoutPages;
-
-/* Creates, and then lays out a single page or accessory view */
-- (void)layoutViewAtScrollIndex:(NSInteger)index;
-
-/* Get the current view, whether it's a page or an accessory */
-- (UIView *)viewForCurrentScrollIndex;
+/* Works out how many slots this pager view has, including accessory views. */
+@property (nonatomic, readonly) NSInteger numberOfPageSlots;
 
 @end
 
@@ -135,8 +105,8 @@
     self.backgroundColor        = [UIColor clearColor];
     
     //default layout properties
-    self.pageSpacing            = PAGEVIEW_DEFAULT_SPACING;
-    self.pageScrollDirection    = TOPagerViewDirectionWestern;
+    self.pageSpacing            = 20.0f;
+    self.pageScrollDirection    = TOPagerViewDirectionLeftToRight;
     
     //create the page stores
     self.visiblePages           = [NSMutableDictionary dictionary];
@@ -188,8 +158,11 @@
 #pragma mark System Notification Observation
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if ([keyPath isEqualToString:@"contentOffset"])
-        [self layoutPages];
+    if (![keyPath isEqualToString:@"contentOffset"]) {
+        return;
+    }
+
+    [self layoutPages];
 }
 
 #pragma mark -
@@ -231,11 +204,13 @@
     contentOffset.y = 0.0f;
     
     //invert the layout direction for eastern mode
-    if (PAGEVIEW_EASTERN_MODE)
+    if (self.pageScrollDirection == TOPagerViewDirectionRightToLeft) {
         contentOffset.x = ((self.scrollView.contentSize.width) - (CGRectGetWidth(self.scrollView.bounds) * (index+1)));
-    else
+    }
+    else {
         contentOffset.x = (CGRectGetWidth(self.scrollView.bounds) * index);
-    
+    }
+
     return contentOffset;
 }
 
@@ -243,7 +218,7 @@
 {
     CGSize contentSize = CGSizeZero;
     contentSize.height = CGRectGetHeight(self.bounds);
-    contentSize.width  = PAGEVIEW_NUMBEROFSLOTS * (CGRectGetWidth(self.bounds) + self.pageSpacing);
+    contentSize.width  = self.numberOfPageSlots * (CGRectGetWidth(self.bounds) + self.pageSpacing);
     return contentSize;
 }
 
@@ -273,7 +248,7 @@
         return page;
 
     page = PAGEVIEW_FOOTER_VIEW;
-    if (page && self.scrollIndex >= PAGEVIEW_NUMBEROFSLOTS-1)
+    if (page && self.scrollIndex >= self.numberOfPageSlots-1)
         return page;
         
     return nil;
@@ -287,17 +262,18 @@
     //-------------------------------------------------------------------
     
     //Determine which pages are currently visible on screen
-    CGPoint     contentOffset       = self.scrollView.contentOffset;
+    CGPoint contentOffset       = self.scrollView.contentOffset;
+    CGFloat contentWidth        = self.scrollView.contentSize.width;
     
     //Work out the number of slots the scroll view has (eg, pages + accessories)
-    NSInteger numberOfPageSlots = PAGEVIEW_NUMBEROFSLOTS;
+    NSInteger numberOfPageSlots = self.numberOfPageSlots;
     
     //Determine the origin page on the far left
     NSRange visiblePagesRange   = NSMakeRange(0, 1);
-    visiblePagesRange.location  = MAX(0, floor(contentOffset.x / PAGEVIEW_SCROLLVIEW_WIDTH));
+    visiblePagesRange.location  = MAX(0, floor(contentOffset.x / contentWidth));
     
     //Based on the delta between the offset of that page from the current offset, determine if the page after it is visible
-    CGFloat pageOffsetDelta     = contentOffset.x - (visiblePagesRange.location * PAGEVIEW_SCROLLVIEW_WIDTH);
+    CGFloat pageOffsetDelta     = contentOffset.x - (visiblePagesRange.location * contentWidth);
     visiblePagesRange.length    = fabs(pageOffsetDelta) > PAGEVIEW_HALF_SPACING ? 2 : 1;
     
     //cap the values to ensure we don't go past the absolute bounds
@@ -308,13 +284,12 @@
     visiblePagesRange.length    = (visiblePagesRange.location == numberOfPageSlots-1) ? 1 : visiblePagesRange.length;
     
     //Work out at which index we are scrolled to (Whichever one is overlappting the middle
-    self.scrollIndex = floor((self.scrollView.contentOffset.x + (PAGEVIEW_SCROLLVIEW_WIDTH * 0.5f)) / PAGEVIEW_SCROLLVIEW_WIDTH);
-    self.scrollIndex = MIN(self.scrollIndex, PAGEVIEW_NUMBEROFSLOTS-1);
+    self.scrollIndex = floor((self.scrollView.contentOffset.x + (contentWidth * 0.5f)) / contentWidth);
+    self.scrollIndex = MIN(self.scrollIndex, numberOfPageSlots-1);
     self.scrollIndex = MAX(self.scrollIndex, 0);
     
     //if we're in eastern mode, swap the origin
-    if (PAGEVIEW_EASTERN_MODE)
-    {
+    if (self.pageScrollDirection == TOPagerViewDirectionRightToLeft) {
         visiblePagesRange.location = numberOfPageSlots - visiblePagesRange.location;
         self.scrollIndex = numberOfPageSlots - self.scrollIndex;
     }
@@ -380,7 +355,7 @@
 
 - (void)layoutViewAtScrollIndex:(NSInteger)scrollIndex
 {
-    NSInteger numberOfPageSlots = PAGEVIEW_NUMBEROFSLOTS;
+    NSInteger numberOfPageSlots = self.numberOfPageSlots;
     scrollIndex = MAX(0, scrollIndex);
     scrollIndex = MIN(numberOfPageSlots, scrollIndex);
     
@@ -405,13 +380,13 @@
     }
     
     UIView *footerView = PAGEVIEW_FOOTER_VIEW;
-    if (footerView && scrollIndex >= PAGEVIEW_NUMBEROFSLOTS-1) //add the footer view
+    if (footerView && scrollIndex >= numberOfPageSlots-1) //add the footer view
     {
         if (footerView.superview == nil)
         {
             //configure frame to match
-            footerView.frame    = [self frameForViewAtIndex:PAGEVIEW_NUMBEROFSLOTS-1];
-            footerView.tag      = PAGEVIEW_NUMBEROFSLOTS-1;
+            footerView.frame    = [self frameForViewAtIndex:numberOfPageSlots-1];
+            footerView.tag      = numberOfPageSlots-1;
             
             //inform the delegate in case it needs to update itself
             if (_pageScrollViewFlags.delegateWillInsertFooter)
@@ -499,7 +474,7 @@
 
 - (BOOL)canGoForward
 {
-    return self.scrollIndex < PAGEVIEW_NUMBEROFSLOTS-1;
+    return self.scrollIndex < self.numberOfPageSlots-1;
 }
 
 - (void)turnToNextPageAnimated:(BOOL)animated
@@ -621,8 +596,7 @@
         [self.scrollView.delegate scrollViewDidEndScrollingAnimation:self.scrollView];
 }
 
-#pragma mark -
-#pragma mark Accessor Methods
+#pragma mark - Accessor Methods -
 - (NSInteger)pageIndex
 {
     NSInteger pageIndex = self.scrollIndex;
@@ -658,6 +632,12 @@
     
     _pageScrollViewFlags.dataSourceNumberOfPages    = [_dataSource respondsToSelector:@selector(numberOfPagesInPagerView:)];
     _pageScrollViewFlags.dataSourcePageForIndex     = [_dataSource respondsToSelector:@selector(pagerView:pageViewForIndex:)];
+}
+
+#pragma mark - Internal Accessors -
+- (NSInteger)numberOfPageSlots
+{
+    return self.numberOfPages + (PAGEVIEW_HEADER_VIEW ? 1 : 0) + (PAGEVIEW_FOOTER_VIEW ? 1 : 0);
 }
 
 @end

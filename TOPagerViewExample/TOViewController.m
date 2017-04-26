@@ -59,7 +59,7 @@
         [footerView addSubview:label];
     }
     
-    [label setText:@"Footer"];
+    label.text = @"Footer";
 }
 
 - (void)pagerView:(TOPagerView *)pageScrollView willInsertHeaderView:(UIView *)headerView
@@ -77,7 +77,7 @@
         [headerView addSubview:label];
     }
     
-    [label setText:@"Header"];
+    label.text = @"Header";
 }
 
 

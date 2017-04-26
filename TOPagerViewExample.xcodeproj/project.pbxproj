@@ -1,0 +1,345 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2285C1DA18439F3A0062E4D4 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2285C1D918439F3A0062E4D4 /* QuartzCore.framework */; };
+		22F827FD1EB082C100A6E86E /* TOPagerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 22F827FC1EB082C100A6E86E /* TOPagerView.m */; };
+		22F828021EB082D300A6E86E /* TOAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 22F827FF1EB082D300A6E86E /* TOAppDelegate.m */; };
+		22F828031EB082D300A6E86E /* TOViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 22F828011EB082D300A6E86E /* TOViewController.m */; };
+		22F828051EB082DD00A6E86E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 22F828041EB082DD00A6E86E /* LaunchScreen.xib */; };
+		22F8280A1EB0830400A6E86E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 22F828071EB0830400A6E86E /* main.m */; };
+		6CF7AF18183C7C2F00DC1CE6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CF7AF17183C7C2F00DC1CE6 /* Foundation.framework */; };
+		6CF7AF1A183C7C2F00DC1CE6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CF7AF19183C7C2F00DC1CE6 /* CoreGraphics.framework */; };
+		6CF7AF1C183C7C2F00DC1CE6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CF7AF1B183C7C2F00DC1CE6 /* UIKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2285C1D918439F3A0062E4D4 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		22F827FB1EB082C100A6E86E /* TOPagerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TOPagerView.h; sourceTree = "<group>"; };
+		22F827FC1EB082C100A6E86E /* TOPagerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TOPagerView.m; sourceTree = "<group>"; };
+		22F827FE1EB082D300A6E86E /* TOAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TOAppDelegate.h; path = TOPagerViewExample/TOAppDelegate.h; sourceTree = SOURCE_ROOT; };
+		22F827FF1EB082D300A6E86E /* TOAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TOAppDelegate.m; path = TOPagerViewExample/TOAppDelegate.m; sourceTree = SOURCE_ROOT; };
+		22F828001EB082D300A6E86E /* TOViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TOViewController.h; path = TOPagerViewExample/TOViewController.h; sourceTree = SOURCE_ROOT; };
+		22F828011EB082D300A6E86E /* TOViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TOViewController.m; path = TOPagerViewExample/TOViewController.m; sourceTree = SOURCE_ROOT; };
+		22F828041EB082DD00A6E86E /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = LaunchScreen.xib; path = TOPagerViewExample/LaunchScreen.xib; sourceTree = SOURCE_ROOT; };
+		22F828071EB0830400A6E86E /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = TOPagerViewExample/main.m; sourceTree = SOURCE_ROOT; };
+		22F828081EB0830400A6E86E /* TOPagerViewExample-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "TOPagerViewExample-Info.plist"; path = "TOPagerViewExample/TOPagerViewExample-Info.plist"; sourceTree = SOURCE_ROOT; };
+		22F8280C1EB0832800A6E86E /* TOPagerViewExample-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "TOPagerViewExample-Prefix.pch"; path = "TOPagerViewExample/TOPagerViewExample-Prefix.pch"; sourceTree = SOURCE_ROOT; };
+		6CF7AF14183C7C2F00DC1CE6 /* TOPagerViewExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TOPagerViewExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6CF7AF17183C7C2F00DC1CE6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		6CF7AF19183C7C2F00DC1CE6 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		6CF7AF1B183C7C2F00DC1CE6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		6CF7AF39183C7C3100DC1CE6 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		6CF7AF11183C7C2F00DC1CE6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2285C1DA18439F3A0062E4D4 /* QuartzCore.framework in Frameworks */,
+				6CF7AF1A183C7C2F00DC1CE6 /* CoreGraphics.framework in Frameworks */,
+				6CF7AF1C183C7C2F00DC1CE6 /* UIKit.framework in Frameworks */,
+				6CF7AF18183C7C2F00DC1CE6 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		22F827FA1EB082C100A6E86E /* TOPagerView */ = {
+			isa = PBXGroup;
+			children = (
+				22F827FB1EB082C100A6E86E /* TOPagerView.h */,
+				22F827FC1EB082C100A6E86E /* TOPagerView.m */,
+			);
+			path = TOPagerView;
+			sourceTree = "<group>";
+		};
+		6CF7AF0B183C7C2F00DC1CE6 = {
+			isa = PBXGroup;
+			children = (
+				22F827FA1EB082C100A6E86E /* TOPagerView */,
+				6CF7AF1D183C7C2F00DC1CE6 /* TOPageScrollViewExample */,
+				6CF7AF16183C7C2F00DC1CE6 /* Frameworks */,
+				6CF7AF15183C7C2F00DC1CE6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6CF7AF15183C7C2F00DC1CE6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6CF7AF14183C7C2F00DC1CE6 /* TOPagerViewExample.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6CF7AF16183C7C2F00DC1CE6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2285C1D918439F3A0062E4D4 /* QuartzCore.framework */,
+				6CF7AF17183C7C2F00DC1CE6 /* Foundation.framework */,
+				6CF7AF19183C7C2F00DC1CE6 /* CoreGraphics.framework */,
+				6CF7AF1B183C7C2F00DC1CE6 /* UIKit.framework */,
+				6CF7AF39183C7C3100DC1CE6 /* XCTest.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6CF7AF1D183C7C2F00DC1CE6 /* TOPageScrollViewExample */ = {
+			isa = PBXGroup;
+			children = (
+				22F827FE1EB082D300A6E86E /* TOAppDelegate.h */,
+				22F827FF1EB082D300A6E86E /* TOAppDelegate.m */,
+				22F828001EB082D300A6E86E /* TOViewController.h */,
+				22F828011EB082D300A6E86E /* TOViewController.m */,
+				22F828041EB082DD00A6E86E /* LaunchScreen.xib */,
+				6CF7AF1E183C7C2F00DC1CE6 /* Supporting Files */,
+			);
+			name = TOPageScrollViewExample;
+			path = TOHorizontalPageView;
+			sourceTree = "<group>";
+		};
+		6CF7AF1E183C7C2F00DC1CE6 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				22F8280C1EB0832800A6E86E /* TOPagerViewExample-Prefix.pch */,
+				22F828071EB0830400A6E86E /* main.m */,
+				22F828081EB0830400A6E86E /* TOPagerViewExample-Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6CF7AF13183C7C2F00DC1CE6 /* TOPagerViewExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6CF7AF49183C7C3100DC1CE6 /* Build configuration list for PBXNativeTarget "TOPagerViewExample" */;
+			buildPhases = (
+				6CF7AF10183C7C2F00DC1CE6 /* Sources */,
+				6CF7AF11183C7C2F00DC1CE6 /* Frameworks */,
+				6CF7AF12183C7C2F00DC1CE6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TOPagerViewExample;
+			productName = TOHorizontalPageView;
+			productReference = 6CF7AF14183C7C2F00DC1CE6 /* TOPagerViewExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6CF7AF0C183C7C2F00DC1CE6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = TO;
+				LastUpgradeCheck = 0830;
+				ORGANIZATIONNAME = "Timothy Oliver";
+				TargetAttributes = {
+					6CF7AF13183C7C2F00DC1CE6 = {
+						DevelopmentTeam = 6LF3GMKZAB;
+					};
+				};
+			};
+			buildConfigurationList = 6CF7AF0F183C7C2F00DC1CE6 /* Build configuration list for PBXProject "TOPagerViewExample" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6CF7AF0B183C7C2F00DC1CE6;
+			productRefGroup = 6CF7AF15183C7C2F00DC1CE6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				6CF7AF13183C7C2F00DC1CE6 /* TOPagerViewExample */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6CF7AF12183C7C2F00DC1CE6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22F828051EB082DD00A6E86E /* LaunchScreen.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6CF7AF10183C7C2F00DC1CE6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22F827FD1EB082C100A6E86E /* TOPagerView.m in Sources */,
+				22F828021EB082D300A6E86E /* TOAppDelegate.m in Sources */,
+				22F8280A1EB0830400A6E86E /* main.m in Sources */,
+				22F828031EB082D300A6E86E /* TOViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		6CF7AF47183C7C3100DC1CE6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6CF7AF48183C7C3100DC1CE6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		6CF7AF4A183C7C3100DC1CE6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TOPagerViewExample/TOPagerViewExample-Prefix.pch";
+				INFOPLIST_FILE = "TOPagerViewExample/TOPagerViewExample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.timoliver.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = TOPagerViewExample;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = iphoneos;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		6CF7AF4B183C7C3100DC1CE6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TOPagerViewExample/TOPagerViewExample-Prefix.pch";
+				INFOPLIST_FILE = "TOPagerViewExample/TOPagerViewExample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.timoliver.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = TOPagerViewExample;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = iphoneos;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6CF7AF0F183C7C2F00DC1CE6 /* Build configuration list for PBXProject "TOPagerViewExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6CF7AF47183C7C3100DC1CE6 /* Debug */,
+				6CF7AF48183C7C3100DC1CE6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6CF7AF49183C7C3100DC1CE6 /* Build configuration list for PBXNativeTarget "TOPagerViewExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6CF7AF4A183C7C3100DC1CE6 /* Debug */,
+				6CF7AF4B183C7C3100DC1CE6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6CF7AF0C183C7C2F00DC1CE6 /* Project object */;
+}

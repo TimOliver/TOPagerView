@@ -72,8 +72,7 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 
 @implementation TOPagerView
 
-#pragma mark -
-#pragma mark Class Creation
+#pragma mark - Class Creation -
 - (id)init
 {
     self = [super init];
@@ -95,21 +94,21 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 
 - (void)setup
 {
-    //default view properties
+    // Default view properties
     self.autoresizingMask       = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     self.clipsToBounds          = YES;
     self.backgroundColor        = [UIColor clearColor];
     
-    //default layout properties
+    // Default layout properties
     self.pageSpacing            = 20.0f;
     self.pageScrollDirection    = TOPagerViewDirectionLeftToRight;
     
-    //create the page stores
+    // Create the page stores
     self.pageViewClasses        = [NSMutableDictionary dictionary];
     self.visiblePages           = [NSMutableDictionary dictionary];
     self.recycledPageSets       = [NSMutableDictionary dictionary];
     
-    //create the main scroll view
+    // Create the main scroll view
     self.scrollView                                 = [[UIScrollView alloc] initWithFrame:CGRectZero];
     self.scrollView.pagingEnabled                   = YES;
     self.scrollView.showsHorizontalScrollIndicator  = NO;
@@ -117,8 +116,9 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     self.scrollView.bouncesZoom                     = NO;
     [self addSubview:self.scrollView];
     
-    //create an observer to monitor when the scroll view offset changes
+    // Create an observer to monitor when the scroll view offset changes or if a parent controller tries to change
     [self.scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:NULL];
+    [self.scrollView addObserver:self forKeyPath:@"contentInset" options:NSKeyValueObservingOptionNew context:NULL];
 }
 
 - (void)dealloc
@@ -139,6 +139,7 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     
     //remove the scroll view observer
     [self.scrollView removeObserver:self forKeyPath:@"contentOffset"];
+    [self.scrollView removeObserver:self forKeyPath:@"contentInset"];
 }
 
 - (void)registerPageViewClass:(Class)pageViewClass
@@ -159,19 +160,21 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     [self turnToPageAtIndex:0 animated:NO];
 }
 
-#pragma mark -
-#pragma mark System Notification Observation
+#pragma mark - System Notification Observation -
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if (![keyPath isEqualToString:@"contentOffset"]) {
+    if ([keyPath isEqualToString:@"contentOffset"]) {
+        [self layoutPages];
         return;
     }
 
-    [self layoutPages];
+    if ([keyPath isEqualToString:@"contentInset"]) {
+        [self resetScrollViewVerticalContentInset];
+        return;
+    }
 }
 
-#pragma mark -
-#pragma mark Rendering Set-up and Initialization
+#pragma mark - Rendering Set-up and Initialization -
 - (void)reloadPageScrollView
 {
     if (self.dataSource == nil) {
@@ -193,8 +196,17 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     [self layoutPages];
 }
 
-#pragma mark -
-#pragma mark View Sizing and Layout
+#pragma mark - View Sizing and Layout -
+- (void)resetScrollViewVerticalContentInset
+{
+    UIEdgeInsets insets = self.scrollView.contentInset;
+    if (insets.top == 0.0f && insets.bottom == 0.0f) { return; }
+
+    insets.top = 0.0f;
+    insets.bottom = 0.0f;
+    self.scrollView.contentInset = insets;
+}
+
 - (CGRect)frameForScrollView
 {
     CGRect scrollFrame      = CGRectZero;
@@ -469,8 +481,7 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     self.disablePageLayout = NO;
 }
 
-#pragma mark -
-#pragma mark Page Recycling
+#pragma mark - Page Recycling -
 - (UIView *)dequeueReusablePageView
 {
     return [self dequeueReusablePageViewForIdentifier:kTOPagerViewDefaultPageIdentifier];
@@ -512,8 +523,7 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     return set;
 }
 
-#pragma mark -
-#pragma mark Page Navigation
+#pragma mark - Page Navigation -
 - (BOOL)canGoBack
 {
     return self.scrollIndex > 0;
@@ -540,8 +550,9 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 
 - (void)turnToPreviousPageAnimated:(BOOL)animated
 {
-    if ([self canGoBack] == NO)
+    if ([self canGoBack] == NO) {
         return;
+    }
     
     NSInteger index = self.scrollIndex;
     if (self.leadingAccessoryView) {

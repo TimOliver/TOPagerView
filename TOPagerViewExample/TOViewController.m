@@ -83,7 +83,7 @@
 
 - (NSInteger)numberOfPagesInPagerView:(TOPagerView *)pageScrollView
 {
-    return 5;
+    return 8;
 }
 
 - (UIView *)pagerView:(TOPagerView *)pageScrollView pageViewForIndex:(NSInteger)pageIndex

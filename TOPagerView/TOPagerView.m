@@ -23,16 +23,8 @@
 #import "TOPagerView.h"
 #import <QuartzCore/QuartzCore.h>
 
-//Convienience Definitions
-
+// Constant Definitions
 NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdentifier";
-
-#define PAGEVIEW_HALF_SCROLLVIEW            floor(self.scrollView.bounds.size.width * 0.5f)
-
-
-
-#define PAGEVIEW_PUBLIC_INDEX(index)        (self.headerView || self.headerFooterView) ? index - 1 : index
-
 
 //-------------------------------------------------------------------
 
@@ -85,8 +77,7 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 - (id)init
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         [self setup];
     }
     
@@ -96,8 +87,7 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
-    if (self)
-    {
+    if (self) {
         [self setup];
     }
     return self;
@@ -166,6 +156,7 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 {
     [super didMoveToSuperview];
     [self reloadPageScrollView];
+    [self turnToPageAtIndex:0 animated:NO];
 }
 
 #pragma mark -
@@ -183,16 +174,19 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 #pragma mark Rendering Set-up and Initialization
 - (void)reloadPageScrollView
 {
-    if (self.dataSource == nil)
+    if (self.dataSource == nil) {
         return;
+    }
     
     self.numberOfPages = 0;
-    if (_pageScrollViewFlags.dataSourceNumberOfPages)
+    if (_pageScrollViewFlags.dataSourceNumberOfPages) {
         self.numberOfPages = [self.dataSource numberOfPagesInPagerView:self];
-    
-    if (self.numberOfPages == 0)
+    }
+
+    if (self.numberOfPages == 0) {
         self.numberOfPages = 1;
-    
+    }
+
     self.scrollView.frame = [self frameForScrollView];
     self.scrollView.contentSize = [self contentSizeForScrollView];
     
@@ -254,24 +248,28 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 {
     //if it's a standard page, return it
     UIView *page = [self.visiblePages objectForKey:@(self.scrollIndex)];
-    if (page)
+    if (page) {
         return page;
-    
+    }
+
     page = self.leadingAccessoryView;
-    if (page && self.scrollIndex == 0)
+    if (page && self.scrollIndex == 0) {
         return page;
+    }
 
     page = self.trailingAccessoryView;
-    if (page && self.scrollIndex >= self.numberOfPageSlots-1)
+    if (page && self.scrollIndex >= self.numberOfPageSlots-1) {
         return page;
-        
+    }
+
     return nil;
 }
 
 - (void)layoutPages
 {
-    if (self.disablePageLayout || self.numberOfPages == 0)
+    if (self.disablePageLayout || self.numberOfPages == 0) {
         return;
+    }
 
     //-------------------------------------------------------------------
     
@@ -297,17 +295,17 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     visiblePagesRange.length    = contentOffset.x < 0.0f + FLT_EPSILON ? 1 : visiblePagesRange.length;
     visiblePagesRange.length    = (visiblePagesRange.location == numberOfPageSlots-1) ? 1 : visiblePagesRange.length;
     
-    //Work out at which index we are scrolled to (Whichever one is overlappting the middle
+    //Work out at which index we are scrolled to (Whichever one is overlapping the middle
     self.scrollIndex = floor((self.scrollView.contentOffset.x + (scrollViewWidth * 0.5f)) / scrollViewWidth);
     self.scrollIndex = MIN(self.scrollIndex, numberOfPageSlots-1);
     self.scrollIndex = MAX(self.scrollIndex, 0);
 
     //if we're in reversed mode, swap the origin
     if (self.pageScrollDirection == TOPagerViewDirectionRightToLeft) {
-        visiblePagesRange.location = numberOfPageSlots - visiblePagesRange.location;
-        self.scrollIndex = numberOfPageSlots - self.scrollIndex;
+        visiblePagesRange.location = (numberOfPageSlots - 1) - visiblePagesRange.location - (visiblePagesRange.length > 1 ? visiblePagesRange.length - 1 : 0);
+        self.scrollIndex = (numberOfPageSlots - 1) - self.scrollIndex;
     }
-        
+
     //-------------------------------------------------------------------
     
     //work out if any visible pages need to be removed, and remove as necessary
@@ -331,30 +329,34 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     
     //if there are any accessory views, work out if they need to be removed
     //remove either headerFooter view
-    if (self.headerFooterView.superview)
-    {
-        if (visiblePagesRange.location > 0 && (NSMaxRange(visiblePagesRange)-1) < numberOfPageSlots-1)
+    if (self.headerFooterView.superview) {
+        if (visiblePagesRange.location > 0 && (NSMaxRange(visiblePagesRange)-1) < numberOfPageSlots-1) {
             [self.headerFooterView removeFromSuperview];
-        else
+        }
+        else {
             visiblePagesCount++;
+        }
     }
     
     //remove header view if necessary
-    if (self.headerView.superview)
-    {
-        if (visiblePagesRange.location > 0)
+    if (self.headerView.superview) {
+        if (visiblePagesRange.location > 0) {
             [self.headerView removeFromSuperview];
-        else
+        }
+        else {
             visiblePagesCount++;
+        }
     }
 
     //remove footer view if necessary
     if (self.footerView.superview)
     {
-        if ((NSMaxRange(visiblePagesRange)-1) < numberOfPageSlots-1)
+        if ((NSMaxRange(visiblePagesRange)-1) < numberOfPageSlots-1) {
             [self.footerView removeFromSuperview];
-        else
+        }
+        else {
             visiblePagesCount++;
+        }
     }
     
     //-------------------------------------------------------------------
@@ -364,8 +366,9 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
         return;
     
     //go through and insert all new pages necessary
-    for (NSInteger i = visiblePagesRange.location; i < NSMaxRange(visiblePagesRange); i++)
+    for (NSInteger i = visiblePagesRange.location; i < NSMaxRange(visiblePagesRange); i++) {
         [self layoutViewAtScrollIndex:i];
+    }
 }
 
 - (void)layoutViewAtScrollIndex:(NSInteger)scrollIndex
@@ -376,18 +379,17 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     
     //add the header view
     UIView *headerView = self.leadingAccessoryView;
-    if (headerView && scrollIndex == 0)
-    {
-        if (headerView.superview == nil)
-        {
+    if (headerView && scrollIndex == 0) {
+        if (headerView.superview == nil) {
             //configure frame to match
             headerView.frame    = [self frameForViewAtIndex:0];
             headerView.tag      = 0;
             
             //inform the delegate in case it needs to update itself
-            if (_pageScrollViewFlags.delegateWillInsertHeader)
+            if (_pageScrollViewFlags.delegateWillInsertHeader) {
                 [self.delegate pagerView:self willInsertHeaderView:headerView];
-            
+            }
+
             [self.scrollView addSubview:headerView];
         }
         
@@ -395,18 +397,17 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     }
     
     UIView *footerView = self.trailingAccessoryView;
-    if (footerView && scrollIndex >= numberOfPageSlots-1) //add the footer view
-    {
-        if (footerView.superview == nil)
-        {
+    if (footerView && scrollIndex >= numberOfPageSlots-1) { //add the footer view
+        if (footerView.superview == nil) {
             //configure frame to match
             footerView.frame    = [self frameForViewAtIndex:numberOfPageSlots-1];
             footerView.tag      = numberOfPageSlots-1;
             
             //inform the delegate in case it needs to update itself
-            if (_pageScrollViewFlags.delegateWillInsertFooter)
+            if (_pageScrollViewFlags.delegateWillInsertFooter) {
                 [self.delegate pagerView:self willInsertFooterView:footerView];
-            
+            }
+
             [self.scrollView addSubview:footerView];
         }
         
@@ -414,16 +415,20 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     }
     
     //add as a page
-    if ([self.visiblePages objectForKey:@(scrollIndex)])
+    if ([self.visiblePages objectForKey:@(scrollIndex)]) {
         return;
+    }
     
     UIView *page = nil;
-    if (_pageScrollViewFlags.dataSourcePageForIndex)
-        page = [self.dataSource pagerView:self pageViewForIndex:PAGEVIEW_PUBLIC_INDEX(scrollIndex)];
-    
-    if (page == nil)
+    NSInteger publicIndex = self.leadingAccessoryView ? scrollIndex - 1 : scrollIndex;
+    if (_pageScrollViewFlags.dataSourcePageForIndex) {
+        page = [self.dataSource pagerView:self pageViewForIndex:publicIndex];
+    }
+
+    if (page == nil) {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"Page from data source cannot be nil!" userInfo:nil];
-    
+    }
+
     page.frame = [self frameForViewAtIndex:scrollIndex];
     [self.scrollView addSubview:page];
     [self.visiblePages setObject:page forKey:@(scrollIndex)];
@@ -446,17 +451,20 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     }];
     
     //place the header/footer views
-    if (self.headerFooterView.superview)
+    if (self.headerFooterView.superview) {
         self.headerFooterView.frame = [self frameForViewAtIndex:self.headerFooterView.tag];
-    
+    }
+
     //place the header view
-    if (self.headerView)
+    if (self.headerView) {
         self.headerView.frame = [self frameForViewAtIndex:self.headerView.tag];
-    
+    }
+
     //place the footer view
-    if (self.footerView)
+    if (self.footerView) {
         self.footerView.frame = [self frameForViewAtIndex:self.footerView.tag];
-    
+    }
+
     //re-enable the layout code
     self.disablePageLayout = NO;
 }
@@ -518,12 +526,14 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 
 - (void)turnToNextPageAnimated:(BOOL)animated
 {
-    if ([self canGoForward] == NO)
+    if ([self canGoForward] == NO) {
         return;
+    }
     
     NSInteger index = self.scrollIndex;
-    if (self.leadingAccessoryView)
+    if (self.leadingAccessoryView) {
         index--;
+    }
     
     [self turnToPageAtIndex:index+1 animated:YES];
 }
@@ -534,8 +544,9 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
         return;
     
     NSInteger index = self.scrollIndex;
-    if (self.leadingAccessoryView)
+    if (self.leadingAccessoryView) {
         index--;
+    }
     
     [self turnToPageAtIndex:index-1 animated:YES];
 }
@@ -543,96 +554,96 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 - (void)turnToPageAtIndex:(NSInteger)index animated:(BOOL)animated
 {
     //verify index is valid (Still in page space and not scroll space)
-    if (self.leadingAccessoryView)
+    if (self.leadingAccessoryView) {
         index = MAX(-1, index);
-    else
+    }
+    else {
         index = MAX(0, index);
-    
-    if (self.trailingAccessoryView)
+    }
+
+    if (self.trailingAccessoryView) {
         index = MIN(self.numberOfPages, index);
-    else
+    }
+    else {
         index = MIN(self.numberOfPages-1, index);
+    }
     
     //convert to scroll space
-    if (self.leadingAccessoryView)
+    if (self.leadingAccessoryView) {
         index++;
-    
-    if (animated == NO)
-    {
+    }
+
+    // Inform the delegate
+    if (_pageScrollViewFlags.delegateWillJumpToIndex) {
+        [self.delegate pagerView:self willJumpToPageAtIndex:index];
+    }
+
+    // If not animated, just change the offset and relayout
+    if (animated == NO) {
         self.scrollView.contentOffset = [self contentOffsetForScrollViewAtIndex:index];
         [self layoutPages];
-    }
-    else
-    {
-        static NSString *animationKey = @"pageTurnAnimation";
-        
-        //if we're already animating, cancel that last animation
-        CABasicAnimation *animation = (CABasicAnimation *)[self.scrollView.layer animationForKey:animationKey];
-        if (animation != nil)
-        {
-            [self.scrollView.layer removeAnimationForKey:animationKey];
-            animation = nil;
-            
-            self.disablePageLayout = NO;
-            [self layoutPages];
-        }
-        
-        //disable page layout (We'll manually handle placement here)
-        self.disablePageLayout = YES;
-        
-        //if we're turning more than one page away, move the current page right up to the side of the target page,
-        //so we can have a seamless jump animation
-        if (labs(index - self.scrollIndex) > 1)
-        {
-            UIView *page = [self viewForCurrentScrollIndex];
-            
-            NSInteger newIndex = 0;
-            if (index > self.scrollIndex)
-                newIndex = index - 1;
-            else
-                newIndex = index + 1;
-            
-            //jump to the position just before
-            page.frame = [self frameForViewAtIndex:newIndex];
-            self.scrollView.contentOffset = [self contentOffsetForScrollViewAtIndex:newIndex];
-        }
-        
-        //layout the target cell
-        [self layoutViewAtScrollIndex:index];
-        
-        //set up the animation
-        animation = [CABasicAnimation animationWithKeyPath:@"bounds"];
-        animation.duration = 0.35f;
-        animation.delegate = self;
-        animation.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.30f :0.60f :0.35f :0.95f];
-        
-        CGRect bounds = self.scrollView.bounds;
-        animation.fromValue = [NSValue valueWithCGRect:bounds];
-        bounds.origin = [self contentOffsetForScrollViewAtIndex:index];
-        animation.toValue = [NSValue valueWithCGRect:bounds];
-        
-        [self.scrollView.layer addAnimation:animation forKey:animationKey];
-        self.scrollView.contentOffset = bounds.origin;
-        
-        //update the scroll index to the new value
-        self.scrollIndex = index;
-    }
-    
-    if (_pageScrollViewFlags.delegateWillJumpToIndex)
-        [self.delegate pagerView:self willJumpToPageAtIndex:index];
-}
-
-- (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
-{
-    if (flag==NO)
         return;
-    
-    //re-enable the page layout and perform a refresh
+    }
+
+    // Kill any existing animations
+    [self.scrollView.layer removeAllAnimations];
+
+    // Re-enable layouts after the animation has been killed so we can update the current state
     self.disablePageLayout = NO;
     [self layoutPages];
-    
-    if (self.scrollView.delegate && [self.scrollView.delegate respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)])
-        [self.scrollView.delegate scrollViewDidEndScrollingAnimation:self.scrollView];
+
+    // Before animating, disable page layout (We'll manually handle placement from here)
+    self.disablePageLayout = YES;
+
+    // If we're turning more than one page away, move the current page right up
+    // to the side of the target page so we can have a seamless jump animation
+    if (labs(index - self.scrollIndex) > 1) {
+        UIView *page = [self viewForCurrentScrollIndex];
+
+        NSInteger newIndex = 0;
+        if (index > self.scrollIndex) {
+            newIndex = index - 1;
+        }
+        else {
+            newIndex = index + 1;
+        }
+
+        //jump to the position just before
+        [UIView performWithoutAnimation:^{
+            page.frame = [self frameForViewAtIndex:newIndex];
+            self.scrollView.contentOffset = [self contentOffsetForScrollViewAtIndex:newIndex];
+        }];
+    }
+
+    // Update the scroll index to match the new value
+    self.scrollIndex = index;
+
+    // Layout the target cell
+    [self layoutViewAtScrollIndex:index];
+
+    // Set up the animation block
+    id animationBlock = ^{
+        self.scrollView.contentOffset = [self contentOffsetForScrollViewAtIndex:index];
+    };
+
+    // Set up the completion block
+    id completionBlock = ^(BOOL complete) {
+        // Don't relayout if we intentionally killed the animation
+        if (complete == NO) { return; }
+
+        //re-enable the page layout and perform a refresh
+        self.disablePageLayout = NO;
+        [self layoutPages];
+
+        // Inform the scroll view delegate (if there is one) that the scrolling animation completed
+        if (self.scrollView.delegate && [self.scrollView.delegate respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
+            [self.scrollView.delegate scrollViewDidEndScrollingAnimation:self.scrollView];
+        }
+    };
+
+    // Perform the animation
+    [UIView animateWithDuration:0.35f delay:0.0f usingSpringWithDamping:1.0f initialSpringVelocity:0.3f options:0
+                     animations:animationBlock completion:completionBlock];
 }
 
 #pragma mark - Accessor Methods -
@@ -641,13 +652,15 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     NSInteger pageIndex = self.scrollIndex;
     
     //subtract by one to remove the header
-    if (self.leadingAccessoryView && pageIndex > 0)
+    if (self.leadingAccessoryView && pageIndex > 0) {
         pageIndex--;
+    }
     
     //cap to the maximum number of pages (which will remove the footer)
-    if (pageIndex >= self.numberOfPages)
-        pageIndex = self.numberOfPages-1;
-    
+    if (pageIndex >= self.numberOfPages) {
+        pageIndex = self.numberOfPages - 1;
+    }
+
     return pageIndex;
 }
 

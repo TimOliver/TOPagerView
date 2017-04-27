@@ -22,6 +22,8 @@
 
 #import <UIKit/UIKit.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class TOPagerView;
 
 //-------------------------------------------------------------------
@@ -91,10 +93,10 @@ typedef enum {
 @property (nonatomic, strong, readonly) UIScrollView *scrollView;
 
 /** Data source object to supply page information to the scroll view */
-@property (nonatomic, weak) id <TOPagerViewDataSource> dataSource;
+@property (nonatomic, weak, nullable) id <TOPagerViewDataSource> dataSource;
 
 /** Delegate object in which page scroll view events are sent. */
-@property (nonatomic, weak) id <TOPagerViewDelegate> delegate;
+@property (nonatomic, weak, nullable) id <TOPagerViewDelegate> delegate;
 
 /** The number of pages in the scroll view */
 @property (nonatomic, assign) NSInteger numberOfPages;
@@ -112,9 +114,9 @@ typedef enum {
 @property (nonatomic, assign) NSInteger scrollIndex;
 
 /** Header and/or footer views for the scroll view */
-@property (nonatomic, strong) UIView *headerView;       /** A view placed before the first page in the scroll view */
-@property (nonatomic, strong) UIView *footerView;       /** A view placed after the last page in the scroll view */
-@property (nonatomic, strong) UIView *headerFooterView; /** A single view that will be re-used for both header and footer */
+@property (nonatomic, strong, nullable) UIView *headerView;       /** A view placed before the first page in the scroll view */
+@property (nonatomic, strong, nullable) UIView *footerView;       /** A view placed after the last page in the scroll view */
+@property (nonatomic, strong, nullable) UIView *headerFooterView; /** A single view that will be re-used for both header and footer */
 
 /** Reload the view from scratch and re-layout all pages */
 - (void)reloadPageScrollView;
@@ -125,6 +127,7 @@ typedef enum {
 /** Returns a recycled page view from the default pool, ready for re-use. */
 - (UIView *)dequeueReusablePageView;
 
+/** Returns a recycled page view from the pool matching the provided identifier string. */
 - (UIView *)dequeueReusablePageViewForIdentifier:(NSString *)identifier;
 
 /** Page Navigation Checking */
@@ -139,3 +142,5 @@ typedef enum {
 - (void)turnToPageAtIndex:(NSInteger)pageIndex animated:(BOOL)animated;
 
 @end
+
+NS_ASSUME_NONNULL_END

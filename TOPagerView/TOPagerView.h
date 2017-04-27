@@ -122,8 +122,10 @@ typedef enum {
 /** Registers a page view class that can be automatically instantiated as needed. */
 - (void)registerPageViewClass:(Class)pageViewClass;
 
-/** Returns a recycled page view from the pool, ready for re-use. */
+/** Returns a recycled page view from the default pool, ready for re-use. */
 - (UIView *)dequeueReusablePageView;
+
+- (UIView *)dequeueReusablePageViewForIdentifier:(NSString *)identifier;
 
 /** Page Navigation Checking */
 - (BOOL)canGoForward;

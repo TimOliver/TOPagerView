@@ -25,11 +25,11 @@
 
 //Convienience Definitions
 
-#define PAGEVIEW_HALF_SPACING               floor(self.pageSpacing * 0.5f)
+NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdentifier";
+
 #define PAGEVIEW_HALF_SCROLLVIEW            floor(self.scrollView.bounds.size.width * 0.5f)
 
-#define PAGEVIEW_HEADER_VIEW                (self.headerFooterView ? self.headerFooterView : (self.headerView ? self.headerView : nil))
-#define PAGEVIEW_FOOTER_VIEW                (self.headerFooterView ? self.headerFooterView : (self.footerView ? self.footerView : nil))
+
 
 #define PAGEVIEW_PUBLIC_INDEX(index)        (self.headerView || self.headerFooterView) ? index - 1 : index
 
@@ -54,19 +54,25 @@
 @property (nonatomic, assign) BOOL disablePageLayout;
 
 /* Class prototype used to generate pages */
-@property (nonatomic, assign) Class pageViewClass;
+@property (nonatomic, assign) NSMutableDictionary<NSString *, NSValue *> *pageViewClasses;
 
 /* The main scroll view that displays the pagess */
 @property (nonatomic, strong, readwrite) UIScrollView *scrollView;
 
 /* Pages that are currently visibly placed in the scroll view */
-@property (nonatomic, strong) NSMutableDictionary *visiblePages;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIView *> *visiblePages;
 
-/* Pages that have been requeued into the pool, waiting for re-use */
-@property (nonatomic, strong) NSMutableSet *recycledPages;
+/* A dictionary containing multiple pools of page views that can be reused */
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet *> *recycledPageSets;
 
 /* Works out how many slots this pager view has, including accessory views. */
 @property (nonatomic, readonly) NSInteger numberOfPageSlots;
+
+/* Returns the view displayed at the front of the pages (Whether it is the header, or headerFooter view) */
+@property (nonatomic, nullable, readonly) UIView *leadingAccessoryView;
+
+/* Returns the view displayed at the end of the pages (Whether it is the footer, or headerFooter view) */
+@property (nonatomic, nullable, readonly) UIView *trailingAccessoryView;
 
 @end
 
@@ -109,18 +115,19 @@
     self.pageScrollDirection    = TOPagerViewDirectionLeftToRight;
     
     //create the page stores
+    self.pageViewClasses        = [NSMutableDictionary dictionary];
     self.visiblePages           = [NSMutableDictionary dictionary];
-    self.recycledPages          = [NSMutableSet set];
+    self.recycledPageSets       = [NSMutableDictionary dictionary];
     
     //create the main scroll view
-    self.scrollView                                 = [UIScrollView new];
+    self.scrollView                                 = [[UIScrollView alloc] initWithFrame:CGRectZero];
     self.scrollView.pagingEnabled                   = YES;
     self.scrollView.showsHorizontalScrollIndicator  = NO;
     self.scrollView.showsVerticalScrollIndicator    = NO;
     self.scrollView.bouncesZoom                     = NO;
     [self addSubview:self.scrollView];
     
-    //create an observer to monitor when the scroll view moves
+    //create an observer to monitor when the scroll view offset changes
     [self.scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:NULL];
 }
 
@@ -132,12 +139,13 @@
 - (void)cleanup
 {
     //remove any currently visible pages from the view
-    for (UIView *page in self.visiblePages)
+    for (UIView *page in self.visiblePages) {
         [page removeFromSuperview];
-    
+    }
+
     //clean up the page stores
-    self.visiblePages = nil;
-    self.recycledPages = nil;
+    self.visiblePages     = nil;
+    self.recycledPageSets = nil;
     
     //remove the scroll view observer
     [self.scrollView removeObserver:self forKeyPath:@"contentOffset"];
@@ -145,7 +153,13 @@
 
 - (void)registerPageViewClass:(Class)pageViewClass
 {
-    self.pageViewClass = pageViewClass;
+    NSString *identifier = kTOPagerViewDefaultPageIdentifier;
+    if ([pageViewClass respondsToSelector:@selector(pageIdentifier)]) {
+        identifier = [pageViewClass pageIdentifier];
+    }
+
+    NSValue *encodedStruct = [NSValue valueWithBytes:&pageViewClass objCType:@encode(Class)];
+    self.pageViewClasses[identifier] = encodedStruct;
 }
 
 - (void)didMoveToSuperview
@@ -192,7 +206,7 @@
     CGRect scrollFrame      = CGRectZero;
     scrollFrame.size.width  = CGRectGetWidth(self.bounds) + self.pageSpacing;
     scrollFrame.size.height = CGRectGetHeight(self.bounds);
-    scrollFrame.origin.x    = 0.0f - PAGEVIEW_HALF_SPACING;
+    scrollFrame.origin.x    = 0.0f - (self.pageSpacing * 0.5f);
     scrollFrame.origin.y    = 0.0f;
     
     return scrollFrame;
@@ -231,7 +245,7 @@
     pageFrame.size.width    = scrollViewWidth - self.pageSpacing;
     
     pageFrame.origin        = [self contentOffsetForScrollViewAtIndex:index];
-    pageFrame.origin.x      += PAGEVIEW_HALF_SPACING;
+    pageFrame.origin.x      += (self.pageSpacing * 0.5f);
 
     return pageFrame;
 }
@@ -243,11 +257,11 @@
     if (page)
         return page;
     
-    page = PAGEVIEW_HEADER_VIEW;
+    page = self.leadingAccessoryView;
     if (page && self.scrollIndex == 0)
         return page;
 
-    page = PAGEVIEW_FOOTER_VIEW;
+    page = self.trailingAccessoryView;
     if (page && self.scrollIndex >= self.numberOfPageSlots-1)
         return page;
         
@@ -263,18 +277,18 @@
     
     //Determine which pages are currently visible on screen
     CGPoint contentOffset       = self.scrollView.contentOffset;
-    CGFloat contentWidth        = self.scrollView.contentSize.width;
+    CGFloat scrollViewWidth     = self.scrollView.bounds.size.width;
     
     //Work out the number of slots the scroll view has (eg, pages + accessories)
     NSInteger numberOfPageSlots = self.numberOfPageSlots;
     
     //Determine the origin page on the far left
     NSRange visiblePagesRange   = NSMakeRange(0, 1);
-    visiblePagesRange.location  = MAX(0, floor(contentOffset.x / contentWidth));
+    visiblePagesRange.location  = MAX(0, floor(contentOffset.x / scrollViewWidth));
     
     //Based on the delta between the offset of that page from the current offset, determine if the page after it is visible
-    CGFloat pageOffsetDelta     = contentOffset.x - (visiblePagesRange.location * contentWidth);
-    visiblePagesRange.length    = fabs(pageOffsetDelta) > PAGEVIEW_HALF_SPACING ? 2 : 1;
+    CGFloat pageOffsetDelta     = contentOffset.x - (visiblePagesRange.location * scrollViewWidth);
+    visiblePagesRange.length    = fabs(pageOffsetDelta) > (self.pageSpacing * 0.5f) ? 2 : 1;
     
     //cap the values to ensure we don't go past the absolute bounds
     visiblePagesRange.location  = MAX(visiblePagesRange.location, 0);
@@ -284,11 +298,11 @@
     visiblePagesRange.length    = (visiblePagesRange.location == numberOfPageSlots-1) ? 1 : visiblePagesRange.length;
     
     //Work out at which index we are scrolled to (Whichever one is overlappting the middle
-    self.scrollIndex = floor((self.scrollView.contentOffset.x + (contentWidth * 0.5f)) / contentWidth);
+    self.scrollIndex = floor((self.scrollView.contentOffset.x + (scrollViewWidth * 0.5f)) / scrollViewWidth);
     self.scrollIndex = MIN(self.scrollIndex, numberOfPageSlots-1);
     self.scrollIndex = MAX(self.scrollIndex, 0);
-    
-    //if we're in eastern mode, swap the origin
+
+    //if we're in reversed mode, swap the origin
     if (self.pageScrollDirection == TOPagerViewDirectionRightToLeft) {
         visiblePagesRange.location = numberOfPageSlots - visiblePagesRange.location;
         self.scrollIndex = numberOfPageSlots - self.scrollIndex;
@@ -298,12 +312,13 @@
     
     //work out if any visible pages need to be removed, and remove as necessary
     __block NSInteger visiblePagesCount = 0;
-    NSSet *keysToRemove = [self.visiblePages keysOfEntriesWithOptions:NSEnumerationConcurrent passingTest:^BOOL (NSNumber *pageNumber, UIView *page, BOOL *stop) {
+    NSSet *keysToRemove = [self.visiblePages keysOfEntriesWithOptions:0 passingTest:^BOOL (NSNumber *pageNumber, UIView *page, BOOL *stop) {
         if (NSLocationInRange(pageNumber.unsignedIntegerValue, visiblePagesRange) == NO)
         {
             //move the page back into the recycle pool
             UIView *page = (UIView *)self.visiblePages[pageNumber];
-            [self.recycledPages addObject:page];
+            NSMutableSet *recycledPagesSet = [self recycledPagesSetForPage:page];
+            [recycledPagesSet addObject:page];
             [page removeFromSuperview];
             
             return YES;
@@ -360,7 +375,7 @@
     scrollIndex = MIN(numberOfPageSlots, scrollIndex);
     
     //add the header view
-    UIView *headerView = PAGEVIEW_HEADER_VIEW;
+    UIView *headerView = self.leadingAccessoryView;
     if (headerView && scrollIndex == 0)
     {
         if (headerView.superview == nil)
@@ -379,7 +394,7 @@
         return;
     }
     
-    UIView *footerView = PAGEVIEW_FOOTER_VIEW;
+    UIView *footerView = self.trailingAccessoryView;
     if (footerView && scrollIndex >= numberOfPageSlots-1) //add the footer view
     {
         if (footerView.superview == nil)
@@ -450,19 +465,43 @@
 #pragma mark Page Recycling
 - (UIView *)dequeueReusablePageView
 {
-    UIView *pageView = [self.recycledPages anyObject];
+    return [self dequeueReusablePageViewForIdentifier:kTOPagerViewDefaultPageIdentifier];
+}
 
-    if (pageView)
-    {
+- (UIView *)dequeueReusablePageViewForIdentifier:(NSString *)identifier
+{
+    NSMutableSet *recycledPagesSet = self.recycledPageSets[identifier];
+    UIView *pageView = recycledPagesSet.anyObject;
+
+    if (pageView) {
         pageView.frame = self.bounds;
-        [self.recycledPages removeObject:pageView];
+        [recycledPagesSet removeObject:pageView];
     }
-    else if (self.pageViewClass)
-    {
-        pageView = [[self.pageViewClass alloc] initWithFrame:self.bounds];
+    else if (self.pageViewClasses[identifier]) {
+        Class pageClass;
+        [self.pageViewClasses[identifier] getValue:&pageClass];
+        pageView = [[pageClass alloc] initWithFrame:self.bounds];
     }
-        
+
     return pageView;
+}
+
+- (NSMutableSet *)recycledPagesSetForPage:(UIView *)pageView
+{
+    // See if the page implemented an identifier, but defer to the default if not
+    NSString *identifier = kTOPagerViewDefaultPageIdentifier;
+    if ([[pageView class] respondsToSelector:@selector(pageIdentifier)]) {
+        identifier = [[pageView class] pageIdentifier];
+    }
+
+    // See if a set object already exists for that identifier. Create a new one if not
+    NSMutableSet *set = self.recycledPageSets[identifier];
+    if (set == nil) {
+        set = [NSMutableSet set];
+        self.recycledPageSets[identifier] = set;
+    }
+
+    return set;
 }
 
 #pragma mark -
@@ -483,7 +522,7 @@
         return;
     
     NSInteger index = self.scrollIndex;
-    if (PAGEVIEW_HEADER_VIEW)
+    if (self.leadingAccessoryView)
         index--;
     
     [self turnToPageAtIndex:index+1 animated:YES];
@@ -495,7 +534,7 @@
         return;
     
     NSInteger index = self.scrollIndex;
-    if (PAGEVIEW_HEADER_VIEW)
+    if (self.leadingAccessoryView)
         index--;
     
     [self turnToPageAtIndex:index-1 animated:YES];
@@ -504,18 +543,18 @@
 - (void)turnToPageAtIndex:(NSInteger)index animated:(BOOL)animated
 {
     //verify index is valid (Still in page space and not scroll space)
-    if (PAGEVIEW_HEADER_VIEW)
+    if (self.leadingAccessoryView)
         index = MAX(-1, index);
     else
         index = MAX(0, index);
     
-    if (PAGEVIEW_FOOTER_VIEW)
+    if (self.trailingAccessoryView)
         index = MIN(self.numberOfPages, index);
     else
         index = MIN(self.numberOfPages-1, index);
     
     //convert to scroll space
-    if (PAGEVIEW_HEADER_VIEW)
+    if (self.leadingAccessoryView)
         index++;
     
     if (animated == NO)
@@ -602,7 +641,7 @@
     NSInteger pageIndex = self.scrollIndex;
     
     //subtract by one to remove the header
-    if (PAGEVIEW_HEADER_VIEW && pageIndex > 0)
+    if (self.leadingAccessoryView && pageIndex > 0)
         pageIndex--;
     
     //cap to the maximum number of pages (which will remove the footer)
@@ -637,7 +676,17 @@
 #pragma mark - Internal Accessors -
 - (NSInteger)numberOfPageSlots
 {
-    return self.numberOfPages + (PAGEVIEW_HEADER_VIEW ? 1 : 0) + (PAGEVIEW_FOOTER_VIEW ? 1 : 0);
+    return self.numberOfPages + (self.leadingAccessoryView ? 1 : 0) + (self.trailingAccessoryView ? 1 : 0);
+}
+
+- (UIView *)leadingAccessoryView
+{
+    return (self.headerFooterView ? self.headerFooterView : (self.headerView ? self.headerView : nil));
+}
+
+- (UIView *)trailingAccessoryView
+{
+    return (self.headerFooterView ? self.headerFooterView : (self.footerView ? self.footerView : nil));
 }
 
 @end

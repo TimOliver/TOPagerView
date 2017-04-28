@@ -37,8 +37,9 @@
     [self.view addSubview:self.pagerView];
 
     // Create a single view that will be recycled for both the first and last accessory views
-    self.pagerView.headerFooterView = [[UIView alloc] init];
-    self.pagerView.headerFooterView.backgroundColor = [UIColor redColor];
+    UIView *headerFooterView = [[UIView alloc] init];
+    headerFooterView.backgroundColor = [UIColor redColor];
+    self.pagerView.headerFooterView = headerFooterView;
 }
 
 #pragma mark - Pager View Delegate -

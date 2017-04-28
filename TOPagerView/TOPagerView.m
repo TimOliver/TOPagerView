@@ -157,7 +157,6 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 {
     [super didMoveToSuperview];
     [self reloadPageScrollView];
-    [self turnToPageAtIndex:0 animated:NO];
 }
 
 #pragma mark - System Notification Observation -
@@ -192,8 +191,9 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 
     self.scrollView.frame = [self frameForScrollView];
     self.scrollView.contentSize = [self contentSizeForScrollView];
-    
-    [self layoutPages];
+    self.scrollView.contentOffset = [self contentOffsetForScrollViewAtIndex:self.scrollIndex];
+
+    [self resetPageLayout];
 }
 
 #pragma mark - View Sizing and Layout -
@@ -258,13 +258,8 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 
 - (UIView *)viewForCurrentScrollIndex
 {
-    //if it's a standard page, return it
-    UIView *page = [self.visiblePages objectForKey:@(self.scrollIndex)];
-    if (page) {
-        return page;
-    }
-
-    page = self.leadingAccessoryView;
+    // If it's an accessory view, return it
+    UIView *page = self.leadingAccessoryView;
     if (page && self.scrollIndex == 0) {
         return page;
     }
@@ -274,7 +269,30 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
         return page;
     }
 
+    //if it's a standard page, return it
+    page = [self.visiblePages objectForKey:@(self.scrollIndex)];
+    if (page) {
+        return page;
+    }
+
     return nil;
+}
+
+- (void)resetPageLayout
+{
+    // Remove all pages from the hierarchy so they can be recalculated from scratch again
+    [self.visiblePages enumerateKeysAndObjectsUsingBlock: ^(NSNumber *key, UIView *page, BOOL *stop) {
+        [page removeFromSuperview];
+        [[self recycledPagesSetForPage:page] addObject:page];
+    }];
+    [self.visiblePages removeAllObjects];
+
+    // Remove all accessory views
+    [self.leadingAccessoryView removeFromSuperview];
+    [self.trailingAccessoryView removeFromSuperview];
+
+    // Perform relayout calculation
+    [self layoutPages];
 }
 
 - (void)layoutPages
@@ -695,6 +713,27 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     
     _pageScrollViewFlags.dataSourceNumberOfPages    = [_dataSource respondsToSelector:@selector(numberOfPagesInPagerView:)];
     _pageScrollViewFlags.dataSourcePageForIndex     = [_dataSource respondsToSelector:@selector(pagerView:pageViewForIndex:)];
+}
+
+- (void)setHeaderFooterView:(UIView *)headerFooterView
+{
+    if (_headerFooterView == headerFooterView) { return; }
+    _headerFooterView = headerFooterView;
+    [self reloadPageScrollView];
+}
+
+- (void)setHeaderView:(UIView *)headerView
+{
+    if (_headerView == headerView) { return; }
+    _headerView = headerView;
+    [self reloadPageScrollView];
+}
+
+- (void)setFooterView:(UIView *)footerView
+{
+    if (_footerView == footerView) { return; }
+    _footerView = footerView;
+    [self reloadPageScrollView];
 }
 
 #pragma mark - Internal Accessors -

@@ -118,7 +118,7 @@ As such, I'm releasing this code more as an educational piece, more than somethi
 
 # License
 
-This library is licensed under the MIT license. Please see [LICENSE] for more details.
+This library is licensed under the MIT license. Please see [LICENSE](LICENSE) for more details.
 
 # Credits
 `TOPagerView` was created by [Tim Oliver](http://twitter.com/TimOliverAU) as a component for iComics.

@@ -19,7 +19,7 @@ In this day and age, it's definitely recommended to use `UICollectionView` inste
 * The automatic page turning animation can be cancelled in response to user events to allow extremely fast navigation.
 
 # Requirements
-iOS 5.0 and above
+iOS 7.0 and above
 
 # Installation
 ## Manually

@@ -122,3 +122,5 @@ This library is licensed under the MIT license. Please see [LICENSE](LICENSE) fo
 
 # Credits
 `TOPagerView` was created by [Tim Oliver](http://twitter.com/TimOliverAU) as a component for iComics.
+
+iPhone 5c device mockup by [Pixeden](http://pixeden.com).

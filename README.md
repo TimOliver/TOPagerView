@@ -18,6 +18,9 @@ In this day and age, it's definitely recommended to use `UICollectionView` inste
 * Provides APIs to randomly jump to specific page numbers.
 * The automatic page turning animation can be cancelled in response to user events to allow extremely fast navigation.
 
+# Requirements
+iOS 5.0 and above
+
 # Installation
 ## Manually
 Drag the folder `TOPagerView` into your Xcode project. Make sure `Copy Items if Needed` is checked to ensure a copy is imported into your Xcode project folder properly.

@@ -129,8 +129,8 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 - (void)cleanup
 {
     //remove any currently visible pages from the view
-    for (UIView *page in self.visiblePages) {
-        [page removeFromSuperview];
+    for (NSNumber *pageIndex in self.visiblePages.allKeys) {
+        [self.visiblePages[pageIndex] removeFromSuperview];
     }
 
     //clean up the page stores
@@ -183,10 +183,6 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     self.numberOfPages = 0;
     if (_pageScrollViewFlags.dataSourceNumberOfPages) {
         self.numberOfPages = [self.dataSource numberOfPagesInPagerView:self];
-    }
-
-    if (self.numberOfPages == 0) {
-        self.numberOfPages = 1;
     }
 
     self.scrollView.frame = [self frameForScrollView];

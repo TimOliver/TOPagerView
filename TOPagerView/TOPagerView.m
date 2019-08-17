@@ -114,6 +114,9 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     self.scrollView.showsHorizontalScrollIndicator  = NO;
     self.scrollView.showsVerticalScrollIndicator    = NO;
     self.scrollView.bouncesZoom                     = NO;
+    if (@available(iOS 11.0, *)) {
+        self.scrollView.contentInsetAdjustmentBehavior  = UIScrollViewContentInsetAdjustmentNever;
+    }
     [self addSubview:self.scrollView];
     
     // Create an observer to monitor when the scroll view offset changes or if a parent controller tries to change

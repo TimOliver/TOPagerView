@@ -347,6 +347,10 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
         {
             //move the page back into the recycle pool
             UIView *page = (UIView *)self.visiblePages[pageNumber];
+            //give it a chance to clear itself before we remove it
+            if ([page respondsToSelector:@selector(prepareForReuse)]) {
+                [page performSelector:@selector(prepareForReuse)];
+            }
             NSMutableSet *recycledPagesSet = [self recycledPagesSetForPage:page];
             [recycledPagesSet addObject:page];
             [page removeFromSuperview];
@@ -456,7 +460,6 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     if (_pageScrollViewFlags.dataSourcePageForIndex) {
         page = [self.dataSource pagerView:self pageViewForIndex:publicIndex];
     }
-
     if (page == nil) {
         @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"Page from data source cannot be nil!" userInfo:nil];
     }

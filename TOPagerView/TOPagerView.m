@@ -465,7 +465,10 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    
+
+    //exit out if there's no content to display
+    if (self.numberOfPages == 0) { return; }
+
     //disable the layout code since we'll be manually doing it here
     self.disablePageLayout = YES;
     

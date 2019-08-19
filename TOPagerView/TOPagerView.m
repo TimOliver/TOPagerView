@@ -54,7 +54,7 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
 @property (nonatomic, strong, readwrite) UIScrollView *scrollView;
 
 /* Pages that are currently visibly placed in the scroll view */
-@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIView *> *visiblePages;
+@property (nonatomic, strong) NSMutableDictionary<NSNumber *, UIView *> *visiblePageViews;
 
 /* A dictionary containing multiple pools of page views that can be reused */
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableSet *> *recycledPageSets;
@@ -129,12 +129,12 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
 - (void)cleanup
 {
     //remove any currently visible pages from the view
-    for (NSNumber *pageIndex in self.visiblePages.allKeys) {
-        [self.visiblePages[pageIndex] removeFromSuperview];
+    for (NSNumber *pageIndex in self.visiblePageViews.allKeys) {
+        [self.visiblePageViews[pageIndex] removeFromSuperview];
     }
 
     //clean up the page stores
-    self.visiblePages     = nil;
+    self.visiblePageViews     = nil;
     self.recycledPageSets = nil;
     
     //remove the scroll view observer
@@ -182,7 +182,7 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
 
     // Create the page stores
     if (!self.pageViewClasses)  { self.pageViewClasses= [NSMutableDictionary dictionary]; }
-    if (!self.visiblePages)     { self.visiblePages = [NSMutableDictionary dictionary]; }
+    if (!self.visiblePageViews) { self.visiblePageViews = [NSMutableDictionary dictionary]; }
     if (!self.recycledPageSets) { self.recycledPageSets = [NSMutableDictionary dictionary]; }
 
     self.numberOfPages = 0;
@@ -271,7 +271,7 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     }
 
     //if it's a standard page, return it
-    page = [self.visiblePages objectForKey:@(self.scrollIndex)];
+    page = [self.visiblePageViews objectForKey:@(self.scrollIndex)];
     if (page) {
         return page;
     }
@@ -282,11 +282,11 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
 - (void)resetPageLayout
 {
     // Remove all pages from the hierarchy so they can be recalculated from scratch again
-    [self.visiblePages enumerateKeysAndObjectsUsingBlock: ^(NSNumber *key, UIView *page, BOOL *stop) {
+    [self.visiblePageViews enumerateKeysAndObjectsUsingBlock: ^(NSNumber *key, UIView *page, BOOL *stop) {
         [page removeFromSuperview];
         [[self recycledPagesSetForPage:page] addObject:page];
     }];
-    [self.visiblePages removeAllObjects];
+    [self.visiblePageViews removeAllObjects];
 
     // Remove all accessory views
     [self.leadingAccessoryView removeFromSuperview];
@@ -341,12 +341,12 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     
     //work out if any visible pages need to be removed, and remove as necessary
     __block NSInteger visiblePagesCount = 0;
-    NSSet *keysToRemove = [self.visiblePages keysOfEntriesWithOptions:0 passingTest:^BOOL (NSNumber *pageNumber, UIView *page, BOOL *stop) {
+    NSSet *keysToRemove = [self.visiblePageViews keysOfEntriesWithOptions:0 passingTest:^BOOL (NSNumber *pageNumber, UIView *page, BOOL *stop) {
         if ([pageNumber isKindOfClass:[NSNumber class]] == NO) { return NO; }
         if (NSLocationInRange(pageNumber.unsignedIntegerValue, visiblePagesRange) == NO)
         {
             //move the page back into the recycle pool
-            UIView *page = (UIView *)self.visiblePages[pageNumber];
+            UIView *page = (UIView *)self.visiblePageViews[pageNumber];
             //give it a chance to clear itself before we remove it
             if ([page respondsToSelector:@selector(prepareForReuse)]) {
                 [page performSelector:@selector(prepareForReuse)];
@@ -361,7 +361,7 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
         visiblePagesCount++;
         return NO;
     }];
-    [self.visiblePages removeObjectsForKeys:[keysToRemove allObjects]];
+    [self.visiblePageViews removeObjectsForKeys:[keysToRemove allObjects]];
     
     //if there are any accessory views, work out if they need to be removed
     //remove either headerFooter view
@@ -451,7 +451,7 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     }
     
     //add as a page
-    if ([self.visiblePages objectForKey:@(scrollIndex)]) {
+    if ([self.visiblePageViews objectForKey:@(scrollIndex)]) {
         return;
     }
     
@@ -466,7 +466,7 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
 
     page.frame = [self frameForViewAtIndex:scrollIndex];
     [self.scrollView addSubview:page];
-    [self.visiblePages setObject:page forKey:@(scrollIndex)];
+    [self.visiblePageViews setObject:page forKey:@(scrollIndex)];
 }
 
 - (void)layoutSubviews {
@@ -484,7 +484,7 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     self.scrollView.contentOffset   = [self contentOffsetForScrollViewAtIndex:self.scrollIndex];
     
     //resize any visible pages
-    [self.visiblePages enumerateKeysAndObjectsUsingBlock:^(NSNumber *pageNumber, UIView *page, BOOL *stop) {
+    [self.visiblePageViews enumerateKeysAndObjectsUsingBlock:^(NSNumber *pageNumber, UIView *page, BOOL *stop) {
         page.frame = [self frameForViewAtIndex:pageNumber.unsignedIntegerValue];
     }];
     
@@ -742,6 +742,11 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     if (_footerView == footerView) { return; }
     _footerView = footerView;
     [self reloadPageScrollView];
+}
+
+- (NSArray *)visiblePages
+{
+    return self.visiblePageViews.allValues;
 }
 
 #pragma mark - Internal Accessors -

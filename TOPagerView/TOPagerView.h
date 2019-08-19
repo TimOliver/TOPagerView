@@ -113,6 +113,9 @@ typedef enum {
 /* The current index that the scroll view is at, (Including accessory views) */
 @property (nonatomic, assign) NSInteger scrollIndex;
 
+/* The page objects currently visible in the scroll view. */
+@property (nonatomic, readonly) NSArray<UIView *> *visiblePages;
+
 /** Header and/or footer views for the scroll view */
 @property (nonatomic, strong, nullable) UIView *headerView;       /** A view placed before the first page in the scroll view */
 @property (nonatomic, strong, nullable) UIView *footerView;       /** A view placed after the last page in the scroll view */

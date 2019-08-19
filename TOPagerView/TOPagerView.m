@@ -23,8 +23,10 @@
 #import "TOPagerView.h"
 #import <QuartzCore/QuartzCore.h>
 
+
+
 // Constant Definitions
-NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdentifier";
+static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdentifier";
 
 //-------------------------------------------------------------------
 
@@ -103,11 +105,6 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     self.pageSpacing            = 20.0f;
     self.pageScrollDirection    = TOPagerViewDirectionLeftToRight;
     
-    // Create the page stores
-    self.pageViewClasses        = [NSMutableDictionary dictionary];
-    self.visiblePages           = [NSMutableDictionary dictionary];
-    self.recycledPageSets       = [NSMutableDictionary dictionary];
-    
     // Create the main scroll view
     self.scrollView                                 = [[UIScrollView alloc] initWithFrame:CGRectZero];
     self.scrollView.pagingEnabled                   = YES;
@@ -156,9 +153,9 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     self.pageViewClasses[identifier] = encodedStruct;
 }
 
-- (void)didMoveToSuperview
+- (void)didMoveToWindow
 {
-    [super didMoveToSuperview];
+    [super didMoveToWindow];
     [self reloadPageScrollView];
 }
 
@@ -182,7 +179,12 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     if (self.dataSource == nil) {
         return;
     }
-    
+
+    // Create the page stores
+    if (!self.pageViewClasses)  { self.pageViewClasses= [NSMutableDictionary dictionary]; }
+    if (!self.visiblePages)     { self.visiblePages = [NSMutableDictionary dictionary]; }
+    if (!self.recycledPageSets) { self.recycledPageSets = [NSMutableDictionary dictionary]; }
+
     self.numberOfPages = 0;
     if (_pageScrollViewFlags.dataSourceNumberOfPages) {
         self.numberOfPages = [self.dataSource numberOfPagesInPagerView:self];
@@ -340,6 +342,7 @@ NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefaultIdent
     //work out if any visible pages need to be removed, and remove as necessary
     __block NSInteger visiblePagesCount = 0;
     NSSet *keysToRemove = [self.visiblePages keysOfEntriesWithOptions:0 passingTest:^BOOL (NSNumber *pageNumber, UIView *page, BOOL *stop) {
+        if ([pageNumber isKindOfClass:[NSNumber class]] == NO) { return NO; }
         if (NSLocationInRange(pageNumber.unsignedIntegerValue, visiblePagesRange) == NO)
         {
             //move the page back into the recycle pool

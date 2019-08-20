@@ -40,6 +40,7 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
         unsigned int delegateWillInsertHeader;
         unsigned int delegateWillInsertFooter;
         unsigned int delegateWillJumpToIndex;
+        unsigned int delegateDidTurnToIndex;
         
     } _pageScrollViewFlags;
 }
@@ -180,20 +181,23 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
         return;
     }
 
-    // Create the page stores
+    //create the page stores
     if (!self.pageViewClasses)  { self.pageViewClasses= [NSMutableDictionary dictionary]; }
     if (!self.visiblePageViews) { self.visiblePageViews = [NSMutableDictionary dictionary]; }
     if (!self.recycledPageSets) { self.recycledPageSets = [NSMutableDictionary dictionary]; }
 
+    //start getting information from the data source
     self.numberOfPages = 0;
     if (_pageScrollViewFlags.dataSourceNumberOfPages) {
         self.numberOfPages = [self.dataSource numberOfPagesInPagerView:self];
     }
 
+    //configure the scroll view
     self.scrollView.frame = [self frameForScrollView];
     self.scrollView.contentSize = [self contentSizeForScrollView];
     self.scrollView.contentOffset = [self contentOffsetForScrollViewAtIndex:self.scrollIndex];
 
+    //reset the pages
     [self resetPageLayout];
 }
 
@@ -294,6 +298,11 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
 
     // Perform relayout calculation
     [self layoutPages];
+
+    // Inform the delegate on first run
+    if (_pageScrollViewFlags.delegateDidTurnToIndex) {
+        [self.delegate pagerView:self didTurnToPageAtIndex:self.pageIndex];
+    }
 }
 
 - (void)layoutPages
@@ -325,7 +334,10 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     
     visiblePagesRange.length    = contentOffset.x < 0.0f + FLT_EPSILON ? 1 : visiblePagesRange.length;
     visiblePagesRange.length    = (visiblePagesRange.location == numberOfPageSlots-1) ? 1 : visiblePagesRange.length;
-    
+
+    //Capture the current index we're on
+    NSInteger oldPageIndex = self.pageIndex;
+
     //Work out at which index we are scrolled to (Whichever one is overlapping the middle
     self.scrollIndex = floor((self.scrollView.contentOffset.x + (scrollViewWidth * 0.5f)) / scrollViewWidth);
     self.scrollIndex = MIN(self.scrollIndex, numberOfPageSlots-1);
@@ -335,6 +347,12 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     if (self.pageScrollDirection == TOPagerViewDirectionRightToLeft) {
         visiblePagesRange.location = (numberOfPageSlots - 1) - visiblePagesRange.location - (visiblePagesRange.length > 1 ? visiblePagesRange.length - 1 : 0);
         self.scrollIndex = (numberOfPageSlots - 1) - self.scrollIndex;
+    }
+
+    // Check if the page index has changed now, and if it has, inform the delegate
+    NSInteger newPageIndex = self.pageIndex;
+    if (oldPageIndex != newPageIndex && _pageScrollViewFlags.delegateDidTurnToIndex) {
+        [self.delegate pagerView:self didTurnToPageAtIndex:newPageIndex];
     }
 
     //-------------------------------------------------------------------
@@ -713,6 +731,7 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     _pageScrollViewFlags.delegateWillInsertFooter   = [_delegate respondsToSelector:@selector(pagerView:willInsertFooterView:)];
     _pageScrollViewFlags.delegateWillInsertHeader   = [_delegate respondsToSelector:@selector(pagerView:willInsertHeaderView:)];
     _pageScrollViewFlags.delegateWillJumpToIndex    = [_delegate respondsToSelector:@selector(pagerView:willJumpToPageAtIndex:)];
+    _pageScrollViewFlags.delegateDidTurnToIndex     = [_delegate respondsToSelector:@selector(pagerView:didTurnToPageAtIndex:)];
 }
 
 - (void)setDataSource:(id<TOPagerViewDataSource>)dataSource

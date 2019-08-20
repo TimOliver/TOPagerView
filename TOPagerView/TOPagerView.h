@@ -74,14 +74,17 @@ typedef enum {
 
 @optional
 
+/** Informs the delegate when the page scroll view is about to move to another page, possibly far away. */
+- (void)pagerView:(TOPagerView *)pagerView willJumpToPageAtIndex:(NSInteger)pageIndex;
+
+/** Informs the delegate that the page completed turning to a new  */
+- (void)pagerView:(TOPagerView *)pagerView didTurnToPageAtIndex:(NSInteger)pageIndex;
+
 /** Informs the delegate that the header view is about to be inserted into the scroll view */
 - (void)pagerView:(TOPagerView *)pagerView willInsertHeaderView:(UIView *)headerView;
 
 /** Informs the delegate that the footer view is about to be inserted into the scroll view */
 - (void)pagerView:(TOPagerView *)pagerView willInsertFooterView:(UIView *)footerView;
-
-/** Informs the delegate when the page scroll view is about to jump to another page */
-- (void)pagerView:(TOPagerView *)pagerView willJumpToPageAtIndex:(NSInteger)pageIndex;
 
 @end
 

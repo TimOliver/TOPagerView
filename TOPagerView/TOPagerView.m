@@ -676,6 +676,11 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     // Layout the target cell
     [self layoutViewAtScrollIndex:index];
 
+    // Trigger the did move to page index delegate
+    if (_pageScrollViewFlags.delegateDidTurnToIndex) {
+        [self.delegate pagerView:self didTurnToPageAtIndex:self.pageIndex];
+    }
+
     // Set up the animation block
     id animationBlock = ^{
         self.scrollView.contentOffset = [self contentOffsetForScrollViewAtIndex:index];
@@ -697,8 +702,13 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     };
 
     // Perform the animation
-    [UIView animateWithDuration:0.35f delay:0.0f usingSpringWithDamping:1.0f initialSpringVelocity:0.3f options:0
-                     animations:animationBlock completion:completionBlock];
+    [UIView animateWithDuration:0.35f
+                          delay:0.0f
+         usingSpringWithDamping:1.0f
+          initialSpringVelocity:0.3f
+                        options:UIViewAnimationOptionAllowUserInteraction
+                     animations:animationBlock
+                     completion:completionBlock];
 }
 
 #pragma mark - Accessor Methods -

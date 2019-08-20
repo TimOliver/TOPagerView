@@ -131,10 +131,19 @@ typedef enum {
 - (void)registerPageViewClass:(Class)pageViewClass;
 
 /** Returns a recycled page view from the default pool, ready for re-use. */
-- (UIView *)dequeueReusablePageView;
+- (nullable __kindof UIView *)dequeueReusablePageView;
 
 /** Returns a recycled page view from the pool matching the provided identifier string. */
-- (UIView *)dequeueReusablePageViewForIdentifier:(NSString *)identifier;
+- (nullable __kindof UIView *)dequeueReusablePageViewForIdentifier:(NSString *)identifier;
+
+/** The currently visible primary view on screen. Can be a page or accessories. */
+- (nullable __kindof UIView *)visibleView;
+
+/** The currently visible primary page view on screen. Will be nil if an acessory is visible. */
+- (nullable __kindof UIView *)visiblePageView;
+
+/** Returns the page view currently assigned to the provided index, or nil otherwise. */
+- (nullable __kindof UIView *)pageViewForIndex:(NSInteger)pageIndex;
 
 /** Page Navigation Checking */
 - (BOOL)canGoForward;

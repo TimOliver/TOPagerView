@@ -261,28 +261,6 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     return pageFrame;
 }
 
-- (UIView *)viewForCurrentScrollIndex
-{
-    // If it's an accessory view, return it
-    UIView *page = self.leadingAccessoryView;
-    if (page && self.scrollIndex == 0) {
-        return page;
-    }
-
-    page = self.trailingAccessoryView;
-    if (page && self.scrollIndex >= self.numberOfPageSlots-1) {
-        return page;
-    }
-
-    //if it's a standard page, return it
-    page = [self.visiblePageViews objectForKey:@(self.scrollIndex)];
-    if (page) {
-        return page;
-    }
-
-    return nil;
-}
-
 - (void)resetPageLayout
 {
     // Remove all pages from the hierarchy so they can be recalculated from scratch again
@@ -567,6 +545,50 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     return set;
 }
 
+- (UIView *)visibleView
+{
+    // If it's an accessory view, return it
+    UIView *page = self.leadingAccessoryView;
+    if (page && self.scrollIndex == 0) {
+        return page;
+    }
+
+    page = self.trailingAccessoryView;
+    if (page && self.scrollIndex >= self.numberOfPageSlots-1) {
+        return page;
+    }
+
+    //if it's a standard page, return it
+    page = [self.visiblePageViews objectForKey:@(self.scrollIndex)];
+    if (page) {
+        return page;
+    }
+
+    return nil;
+}
+
+- (UIView *)visiblePageView
+{
+    return [self pageViewForIndex:self.pageIndex];
+}
+
+- (UIView *)pageViewForIndex:(NSInteger)pageIndex
+{
+    // Skip leading accessory view
+    if (self.leadingAccessoryView && pageIndex == 0) {
+        return nil;
+    }
+
+    // Skip trailing accessory view
+    if (self.trailingAccessoryView && pageIndex >= self.numberOfPageSlots-1) {
+        return nil;
+    }
+
+    // Return page
+    UIView *page = [self.visiblePageViews objectForKey:@(pageIndex)];
+    return page;
+}
+
 #pragma mark - Page Navigation -
 - (BOOL)canGoBack
 {
@@ -653,7 +675,7 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
     // If we're turning more than one page away, move the current page right up
     // to the side of the target page so we can have a seamless jump animation
     if (labs(index - self.scrollIndex) > 1) {
-        UIView *page = [self viewForCurrentScrollIndex];
+        UIView *page = [self visibleView];
 
         NSInteger newIndex = 0;
         if (index > self.scrollIndex) {

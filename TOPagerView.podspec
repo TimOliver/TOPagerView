@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'TOPagerView'
-  s.version  = '0.0.6'
+  s.version  = '0.0.7'
   s.license  =  { :type => 'MIT', :file => 'LICENSE' }
   s.summary  = 'A UIScrollView subclass that allows paged horizontal swiping with a re-use mechansim similar to UITableView.'
   s.homepage = 'https://github.com/TimOliver/TOPagerView'

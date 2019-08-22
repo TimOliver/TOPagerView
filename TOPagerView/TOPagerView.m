@@ -157,7 +157,9 @@ static NSString * const kTOPagerViewDefaultPageIdentifier = @"__TOPagerViewDefau
 - (void)didMoveToWindow
 {
     [super didMoveToWindow];
-    [self reloadPageScrollView];
+    if (self.window) {
+        [self reloadPageScrollView];
+    }
 }
 
 #pragma mark - System Notification Observation -
